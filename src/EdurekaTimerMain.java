@@ -14,12 +14,18 @@ import java.awt.event.ActionListener;
 public class EdurekaTimerMain extends JFrame implements ActionListener {
 
   // Create GUI Components
-  private JLabel label;
-  private JButton startBtn;
-  private JButton stopBtn;
-  private JTextField txtField;
-  private JFrame frame;
+  public static JLabel label;
+  public static JButton startBtn;
+  public static JButton stopBtn;
+  public static JTextField txtField;
+  public static JPanel panel1;
+  public static JPanel panel2;
 
+  public static Thread thread;
+
+  public boolean suspended = true;
+
+  public int i = 0;
 
   public EdurekaTimerMain() throws HeadlessException {
 
@@ -28,38 +34,82 @@ public class EdurekaTimerMain extends JFrame implements ActionListener {
     startBtn = new JButton("Start Time");
     stopBtn = new JButton("Stop Time");
     txtField = new JTextField();
+    panel1 = new JPanel();
+    panel2 = new JPanel();
     // Make text field uneditable
     txtField.setEditable(false);
+    txtField.setColumns(15);
 
-    // Add Components to frame
-    add(label);
-    add(txtField);
-    add(startBtn);
-    add(stopBtn);
+    startBtn.addActionListener(this);
+    stopBtn.addActionListener(this);
 
-    // Create Layout
-    GridLayout gridLayout = new GridLayout(2,0);
+    // Set Layouts for panels
+    panel1.setLayout(new FlowLayout());
+    panel2.setLayout(new FlowLayout());
 
-    this.setLayout(gridLayout);
+    // Add components to panels
+    panel1.add(label);
+    panel1.add(txtField);
+    panel2.add(startBtn);
+    panel2.add(stopBtn);
+    // Set JFrame layout
+    this.setLayout(new GridLayout(2,1));
+
+    //this.setLayout(gridLayout);
     this.pack();
     this.setLocationRelativeTo(null);
     this.setVisible(true);
-    this.setSize(500,250);
+    this.setSize(500,150);
     this.setTitle("Edureka Timer");
+    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    // Add panels to frame
+    this.add(panel1);
+    this.add(panel2);
 
   }
+
+
+
 
   public static void main(String[] args){
-
-
-
+    EdurekaTimerMain edurekaTimerMain = new EdurekaTimerMain();
 
   }
 
+  public void suspend(){
+    suspended = true;
+
+  }
 
 
   @Override
   public void actionPerformed(ActionEvent e) {
 
+    // Start Button
+    if(e.getSource() == startBtn){
+      thread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+          while (true){
+            try{
+              Thread.sleep(1000);
+              txtField.setText(String.valueOf(i));
+              i++;
+            }catch (InterruptedException ex){
+                ex.printStackTrace();
+            }
+          }
+        }
+      });
+      thread.start();
+
+    }
+
+    // Stop Button
+    if(e.getSource() == stopBtn){
+      thread.suspend();
+
+    }
   }
+
 }
